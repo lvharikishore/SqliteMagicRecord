@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "sqlite3.h"
+#import <MagicalRecord/MagicalRecord.h>
 
 @interface ViewController () {
     NSString *databasePath;
@@ -56,8 +57,29 @@
         }
     }
     
-    //[self saveData];
+    [self saveData];
     [self findContact];
+    
+    
+    
+    
+    NSArray *paths = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+    NSURL *documentPath = [paths lastObject];
+    
+    NSURL *storeURL = [documentPath URLByAppendingPathComponent:@"contacts.db"];
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[storeURL path]]) {
+        NSURL *preloadURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"contacts" ofType:@"db"]];
+        NSError* err = nil;
+        
+        if (![[NSFileManager defaultManager] copyItemAtURL:preloadURL toURL:storeURL error:&err]) {
+            NSLog(@"Error: Unable to copy preloaded database.");
+        }
+    }
+    
+    [MagicalRecord setupCoreDataStackWithStoreNamed:@"contacts.db"];
+    
+    
     [super viewDidLoad];
     
     // Do any additional setup after loading the view, typically from a nib.
